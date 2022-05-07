@@ -17,7 +17,7 @@ router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
 
 //  default router
-
+//http:localhost:8000/api/users/
 router.get('/', (req, res) => {
   return res.status(200).json({
     status: true,

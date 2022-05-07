@@ -25,4 +25,34 @@ router.get('/', (req, res) => {
   });
 });
 
+//  user register route
+//  Access:public
+// http://localhost:8000/api/users/register
+
+router.post(
+  '/register',
+  [
+    //   express validator use
+    check('username').not().isEmpty().trim().escape(),
+    check('password1').not().isEmpty().trim().escape(),
+    check('password2').not().isEmpty().trim().escape(),
+    //   checkEmail
+    check('email').isEmail().normalizeEmail(),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    //  check errors is not empty
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        status: false,
+        message: errors.array(),
+      });
+    }
+    return res.status(200).json({
+      status: true,
+      data: req.body,
+    });
+  }
+);
+
 module.exports = router;

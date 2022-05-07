@@ -29,7 +29,7 @@ const userSchema = new Schema({
   },
   updatedAt: {
     type: String,
-    default: moment().formate('DD/MM/YYYY') + ';' + moment().format('hh:mm:ss'),
+    default: moment().format('DD/MM/YYYY') + ';' + moment().format('hh:mm:ss'),
   },
 });
 

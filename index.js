@@ -36,9 +36,13 @@ const cors = require('cors');
 const morgan = require('morgan');
 const PORT = process.env.PORT;
 
+//  userRoutes
+const userRoutes = require('./routes/users');
+
 //  middleware
 app.use(cors());
 app.use(morgan('dev'));
+app.use('/api/users', userRoutes);
 
 app.get('/', (req, res) => {
   return res.status(200).json({

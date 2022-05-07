@@ -7,7 +7,7 @@ const { check, validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
 
-const Users = require('./../models/Users');
+const Users = require('../models/Users');
 
 const token_key = process.env.TOKEN_KEY;
 
@@ -18,6 +18,7 @@ router.use(bodyParser.urlencoded({ extended: true }));
 
 //  default router
 //http:localhost:8000/api/users/
+// method : GET
 router.get('/', (req, res) => {
   return res.status(200).json({
     status: true,
@@ -28,14 +29,14 @@ router.get('/', (req, res) => {
 //  user register route
 //  Access:public
 // http://localhost:8000/api/users/register
-
+//method: POST
 router.post(
   '/register',
   [
     //   express validator use
     check('username').not().isEmpty().trim().escape(),
     check('password1').not().isEmpty().trim().escape(),
-    check('password2').not().isEmpty().trim().escape(),
+
     //   checkEmail
     check('email').isEmail().normalizeEmail(),
   ],
@@ -48,9 +49,15 @@ router.post(
         message: errors.array(),
       });
     }
+
+    // hashing password start
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPassword = bcrypt.hashSync(req.body.password1, salt);
+    // hashed password end
     return res.status(200).json({
       status: true,
       data: req.body,
+      hashedPassword: hashedPassword,
     });
   }
 );

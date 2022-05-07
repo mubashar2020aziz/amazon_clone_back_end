@@ -15,10 +15,7 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
-  passwordagain: {
-    type: String,
-    required: true,
-  },
+
   profile_pic: {
     type: String,
     default: 'empty_avatar_jpg',

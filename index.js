@@ -43,6 +43,8 @@ const userRoutes = require('./routes/usersRoutes');
 app.use(cors());
 app.use(morgan('dev'));
 app.use('/api/user', userRoutes);
+// public is a folder
+app.use(express.static('public'));
 
 app.get('/', (req, res) => {
   return res.status(200).json({

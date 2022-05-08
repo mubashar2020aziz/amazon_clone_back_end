@@ -19,7 +19,7 @@ const userSchema = new Schema({
 
   profile_pic: {
     type: String,
-    default: 'empty_avatar_jpg',
+    default: 'empty_avator_jpg',
   },
   createdAt: {
     type: String,

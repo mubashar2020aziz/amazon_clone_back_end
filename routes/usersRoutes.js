@@ -35,7 +35,7 @@ router.post(
   [
     //   express validator use
     check('username').not().isEmpty().trim().escape(),
-    check('password1').not().isEmpty().trim().escape(),
+    check('password').not().isEmpty().trim().escape(),
 
     //   checkEmail
     check('email').isEmail().normalizeEmail(),
@@ -52,13 +52,56 @@ router.post(
 
     // hashing password start
     const salt = bcrypt.genSaltSync(10);
-    const hashedPassword = bcrypt.hashSync(req.body.password1, salt);
+    const hashedPassword = bcrypt.hashSync(req.body.password, salt);
     // hashed password end
-    return res.status(200).json({
-      status: true,
-      data: req.body,
-      hashedPassword: hashedPassword,
-    });
+    // users registerd start already in or not
+    //  use model Users only already import from model
+    Users.findOne({ email: req.body.email })
+      .then((user) => {
+        // check user email exist or not
+        if (user) {
+          return res.status(409).json({
+            status: false,
+            message: 'user email already exist',
+          });
+        } else {
+          //  use model Users
+          //  create user object from Users Model
+          const newUser = new Users({
+            email: req.body.email,
+            username: req.body.username,
+            password: hashedPassword,
+          });
+          //  insert new user
+          newUser
+            .save()
+            .then((result) => {
+              return res.status(200).json({
+                status: true,
+                user: result,
+              });
+            })
+            .catch((error) => {
+              return res.status(502).json({
+                status: false,
+                error: error,
+              });
+            });
+        }
+      })
+      .catch((error) => {
+        return res.status(502).json({
+          status: false,
+          error: error,
+        });
+      });
+
+    //  users registerd end
+    // return res.status(200).json({
+    //   status: true,
+    //   data: req.body,
+    //   hashedPassword: hashedPassword,
+    // });
   }
 );
 

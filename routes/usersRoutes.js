@@ -32,23 +32,60 @@ router.get('/', (req, res) => {
 //  Access:public
 // http://localhost:8000/api/user/register
 //method: POST
+
 router.post(
   '/register',
   [
     //   express validator use
-    check('username').not().isEmpty().trim().escape(),
-    check('password').not().isEmpty().trim().escape(),
+    check('username')
+      .not()
+      .isEmpty()
+      .withMessage('validation.username_empty')
+      .trim()
+      .escape(),
+    check('password')
+      .not()
+      .isEmpty()
+      .withMessage('validation.password_empty')
+      .trim()
+      .escape(),
+    check('password2')
+      .not()
+      .isEmpty()
+      .withMessage('validation.password2_empty')
+      .trim()
+      .escape(),
 
     //   checkEmail
-    check('email').isEmail().normalizeEmail(),
+    check('email')
+      .isEmail()
+      .normalizeEmail()
+      .withMessage('validation.invalid_email'),
   ],
   (req, res) => {
     const errors = validationResult(req);
     //  check errors is not empty
     if (!errors.isEmpty()) {
+      let error = {};
+      for (index = 0; index < errors.array().length; index++) {
+        error = {
+          ...error,
+          [errors.array()[index].param]: errors.array()[index].msg,
+        };
+      }
       return res.status(400).json({
         status: false,
-        message: errors.array(),
+        error: error,
+        message: 'form validation error',
+      });
+    }
+
+    // check password1 = to retype password2
+
+    if (req.body.password != req.body.password2) {
+      return res.status(400).json({
+        status: false,
+        error: { password2: 'validation.password2_not _same ' },
         message: 'form validation error',
       });
     }
@@ -65,6 +102,7 @@ router.post(
         if (user) {
           return res.status(409).json({
             status: false,
+            error: { email: 'validation.exict_email' },
             message: 'user email already exist',
           });
         } else {
@@ -87,7 +125,7 @@ router.post(
             .catch((error) => {
               return res.status(502).json({
                 status: false,
-                error: error,
+                error: { db_error: 'validation.db_error' },
               });
             });
         }
@@ -95,7 +133,7 @@ router.post(
       .catch((error) => {
         return res.status(502).json({
           status: false,
-          error: error,
+          error: { db_error: 'validation.db_error' },
         });
       });
 
@@ -121,6 +159,7 @@ router.post('/uploadProfilePic', verifyToken, (req, res) => {
     if (!req.file) {
       return res.status(404).json({
         status: false,
+        error: { profile_pic: 'validation.profile_pic_empty' },
         message: 'plz upload profile pic',
       });
     }
@@ -150,6 +189,7 @@ router.post('/uploadProfilePic', verifyToken, (req, res) => {
       .catch((error) => {
         return res.status(502).json({
           status: false,
+          error: { db_error: 'validation.db_error' },
           message: 'database error',
         });
       });
@@ -166,16 +206,32 @@ router.post(
   [
     // check empty fields
     //use express validator
-    check('password').not().isEmpty().trim().escape(),
-    check('email').not().isEmpty().normalizeEmail(),
+    check('password')
+      .not()
+      .isEmpty()
+      .withMessage('validation.password_empty')
+      .trim()
+      .escape(),
+    check('email')
+      .not()
+      .isEmpty()
+      .normalizeEmail()
+      .withMessage('validation.invalid_email'),
   ],
   (req, res) => {
     const errors = validationResult(req);
     // check errors are not empty
     if (!errors.isEmpty()) {
+      let error = {};
+      for (index = 0; index < errors.array().length; index++) {
+        error = {
+          ...error,
+          [errors.array()[index].param]: errors.array()[index].msg,
+        };
+      }
       return res.status(400).json({
         status: false,
-        errors: errors.array(),
+        error: error,
         message: 'form validation error',
       });
     }
@@ -186,6 +242,7 @@ router.post(
         if (!user) {
           return res.status(404).json({
             status: false,
+            error: 'validation.email_not_exist',
             message: 'user dont exist',
           });
         } else {
@@ -199,6 +256,7 @@ router.post(
           if (!isPasswordMatch) {
             return res.status(401).json({
               status: false,
+              password: 'validation.password_not_match',
               message: 'password dont match',
             });
           }
@@ -229,6 +287,7 @@ router.post(
       .catch((error) => {
         return res.status(502).json({
           status: false,
+          db_error: validation.db_error,
           message: 'database error',
         });
       });

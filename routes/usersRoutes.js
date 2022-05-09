@@ -4,7 +4,7 @@ const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 const bodyParser = require('body-parser');
 const { check, validationResult } = require('express-validator');
-const { route } = require('express/lib/application');
+// const { route } = require('express/lib/application');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
 
@@ -179,10 +179,27 @@ router.post(
               message: 'password dont match',
             });
           }
+
+          //json web token generate
+          const token = jwt.sign(
+            {
+              id: user._id,
+              email: user.email,
+            },
+            token_key,
+            {
+              expiresIn: 3600,
+            }
+          );
+
+          //json web token code end
+
           //  if login  match
           return res.status(200).json({
             status: true,
             message: 'user login success...',
+            token: token,
+            user: user,
           });
         }
       })
